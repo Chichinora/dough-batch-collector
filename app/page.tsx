@@ -41,6 +41,7 @@ export default function Home() {
   const signOut = async () => { await fetch("/api/auth/logout", { method: "POST" }); setEditor(false); };
 
   const createBatch = async () => {
+    if (!editor) { setLoginOpen(true); return; }
     const batchId = prompt("輸入新的生產批次編號（Batch ID）");
     if (!batchId?.trim()) return;
     const response = await fetch("/api/batches", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ batchId }) });
@@ -50,19 +51,24 @@ export default function Home() {
   };
   const saveBatch = async (event: FormEvent) => {
     event.preventDefault(); if (!selected) return;
-    await fetch("/api/batches", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ batchId: selected.batch_id, mixerNo: selected.mixer_no, collectedDate: selected.collected_date, initialData: selected.initialData }) });
+    if (!editor) { setLoginOpen(true); return; }
+    const response = await fetch("/api/batches", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ batchId: selected.batch_id, mixerNo: selected.mixer_no, collectedDate: selected.collected_date, initialData: selected.initialData }) });
+    if (!response.ok) { const problem = await response.json() as { error?: string }; setModal({ type: "success", message: problem.error || "無法儲存初始參數。" }); return; }
     await refreshBatches(); setModal({ type: "success", message: "初始參數已成功儲存。" });
   };
   const saveRecord = async (event: FormEvent) => {
     event.preventDefault(); if (!selected) return;
+    if (!editor) { setLoginOpen(true); return; }
     const recordType = view === "adjustments" ? "adjustment" : "gt";
-    await fetch("/api/observations", { method: editing ? "PUT" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...entry, data: { ...entry.data, recordType }, batchId: selected.batch_id, id: editing }) });
+    const response = await fetch("/api/observations", { method: editing ? "PUT" : "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...entry, data: { ...entry.data, recordType }, batchId: selected.batch_id, id: editing }) });
+    if (!response.ok) { const problem = await response.json() as { error?: string }; setModal({ type: "success", message: problem.error || "無法儲存資料。" }); return; }
     await refreshRecords(selected.batch_id); setEntry(blankEntry()); setEditing(null); setEntryOpen(false);
     setModal({ type: "success", message: editing ? `${recordType === "gt" ? "GT 量測" : "調整參數"}已成功更新。` : `${recordType === "gt" ? "GT 量測" : "調整參數"}已成功儲存。` });
   };
   const startEdit = (record: Observation) => { setEntry({ timestamp: record.timestamp, elapsedSeconds: record.elapsed_seconds || "", data: record.data || {}, notes: record.notes || "" }); setEditing(record.id); setEntryOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const confirmDelete = async () => {
     if (!selected || modal?.type !== "confirm") return;
+    if (!editor) { setModal(null); setLoginOpen(true); return; }
     if (modal.target === "batch") {
       await fetch(`/api/batches?batchId=${encodeURIComponent(modal.batchId)}`, { method: "DELETE" });
       if (selected.batch_id === modal.batchId) { setSelected(null); setObservations([]); }
