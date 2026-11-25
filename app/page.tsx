@@ -8,12 +8,12 @@ type DefaultInitialParameters = { mixerNo: string; collectedDate: string; initia
 type Observation = { id: number; batch_id?: string; timestamp: string; elapsed_seconds?: string; data: Record<string, string>; notes?: string; updated_at?: string };
 type Modal = { type: "success"; message: string } | { type: "confirm"; target: "record"; id: number } | { type: "confirm"; target: "batch"; batchId: string } | null;
 
-const parameterGroups = [
+const parameterGroups: { title: string; fields: readonly (readonly [string, string, string])[] }[] = [
   { title: "設備欄位", fields: [["mixerNo","攪拌機號",""],["mixerRadius","攪拌槽內半徑","m"],["idlePower","空轉功率","W"]] },
   { title: "原料欄位", fields: [["doughWeight","麵團總重量","kg"],["doughVolume","麵團體積","m³"],["flourWeight","麵粉重量","kg"],["flourTemp","麵粉溫度","°C"],["waterWeight","水＋冰塊重量","kg"],["butterWeight","奶油重量","kg"],["butterTemp","奶油溫度","°C"],["ingredientTemp","原料初始溫度","°C"],["hydration","初始水合比例","%"]] },
   { title: "重工料欄位", fields: [["reworkWeight","重工料重量","kg"],["reworkWeightOther","其他重工料重量","kg"],["reworkSource","重工料來源",""],["reworkStorage","重工料存放時間","min"],["reworkTemp","重工料初始溫度","°C"]] },
-  { title: "稼動參數", fields: [["plannedTime","預計攪拌時間","分鐘"],["mixStartTime","攪拌開始時間",""],["additionalTime","追加時間","分鐘"],["mixEndTime","攪拌結束時間",""],["stage1Speed","第 1 階段轉速","rpm"],["stage2Speed","第 2 階段轉速","rpm"],["stage3Speed","第 3 階段轉速","rpm"],["stage4Speed","第 4 階段轉速","rpm"],["stage5Speed","第 5 階段轉速","rpm"],["stage6Speed","第 6 階段轉速","rpm"],["stage7Speed","第 7 階段轉速","rpm"]] },
-] as const;
+  { title: "稼動參數", fields: [["plannedTime","預計攪拌時間","分鐘"],["mixStartTime","攪拌開始時間",""],["mixEndTime","攪拌結束時間",""],["stage1Speed","第 1 階段轉速","rpm"],["stage2Speed","第 2 階段轉速","rpm"],["stage3Speed","第 3 階段轉速","rpm"],["stage4Speed","第 4 階段轉速","rpm"],["stage5Speed","第 5 階段轉速","rpm"],["stage6Speed","第 6 階段轉速","rpm"],["stage7Speed","第 7 階段轉速","rpm"]] },
+];
 const gtFields = [["gtTemperature","GT 麵團溫度","°C"],["extensibility","GT 麵團延展性","mm"],["extensibilityResistance","延展抗性","N"],["qualityManual","當前品質人工判斷",""],["extensibilityPerson1","延展性人工判斷－人員 1",""],["extensibilityPerson2","延展性人工判斷－人員 2",""],["extensibilityPerson3","延展性人工判斷－人員 3",""]] as const;
 const blankEntry = () => ({ timestamp: new Date().toISOString().slice(0,16), elapsedSeconds: "", data: {} as Record<string,string>, notes: "" });
 const initialFields = parameterGroups.flatMap(group => group.fields as ReadonlyArray<readonly [string, string, string]>);
