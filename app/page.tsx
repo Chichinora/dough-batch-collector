@@ -13,7 +13,7 @@ const parameterGroups = [
   { title: "重工料欄位", fields: [["reworkWeight","重工料重量","kg"],["reworkWeightOther","其他重工料重量","kg"],["reworkSource","重工料來源",""],["reworkStorage","重工料存放時間","min"],["reworkTemp","重工料初始溫度","°C"]] },
   { title: "稼動參數", fields: [["plannedTime","預計攪拌時間","分鐘"],["mixStartTime","攪拌開始時間",""],["additionalTime","追加時間","分鐘"],["mixEndTime","攪拌結束時間",""],["stage1Speed","第 1 階段轉速","rpm"],["stage2Speed","第 2 階段轉速","rpm"],["stage3Speed","第 3 階段轉速","rpm"],["stage4Speed","第 4 階段轉速","rpm"],["stage5Speed","第 5 階段轉速","rpm"],["stage6Speed","第 6 階段轉速","rpm"],["stage7Speed","第 7 階段轉速","rpm"]] },
 ] as const;
-const gtFields = [["gtTemperature","GT 麵團溫度","°C"],["extensibility","GT 麵團延展性","mm"],["extensibilityManual","延展性人工判斷","文字"],["hardness","GT 麵團硬度","N"],["hardnessManual","硬度人工量測","未註明單位"]] as const;
+const gtFields = [["gtTemperature","GT 麵團溫度","°C"],["extensibility","GT 麵團延展性","mm"],["extensibilityResistance","延展抗性","N"],["extensibilityManual","延展性人工判斷","文字"],["hardness","GT 麵團硬度","N"],["hardnessManual","硬度人工量測","未註明單位"]] as const;
 const blankEntry = () => ({ timestamp: new Date().toISOString().slice(0,16), elapsedSeconds: "", data: {} as Record<string,string>, notes: "" });
 const initialFields = parameterGroups.flatMap(group => group.fields as ReadonlyArray<readonly [string, string, string]>);
 const exportHeaders = ["批次","時間戳","攪拌經過秒數 (s)","GT 量測階段結束","資料類型","收集日期",...initialFields.map(([,label,unit]) => `${label}${unit ? ` (${unit})` : ""}`),...gtFields.map(([,label,unit]) => `${label} (${unit})`),"調整方式","調整幾分鐘","調整幾秒鐘","備註"];
