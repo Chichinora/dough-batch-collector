@@ -10,7 +10,8 @@ type Modal = { type: "success"; message: string } | { type: "confirm"; target: "
 
 const parameterGroups: { title: string; fields: readonly (readonly [string, string, string])[] }[] = [
   { title: "設備欄位", fields: [["mixerNo","攪拌機號",""],["mixerRadius","攪拌槽內半徑","m"],["idlePower","空轉功率","W"]] },
-  { title: "原料欄位", fields: [["doughWeight","麵團總重量","kg"],["doughVolume","麵團體積","m³"],["flourWeight","麵粉重量","kg"],["flourTemp","麵粉溫度","°C"],["waterWeight","水＋冰塊重量","kg"],["butterWeight","奶油重量","kg"],["butterTemp","奶油溫度","°C"],["ingredientTemp","原料初始溫度","°C"],["hydration","初始水合比例","%"]] },
+  { title: "原料重量", fields: [["doughWeight","麵團總重量","kg"],["doughVolume","麵團體積","m³"],["flourWeight","麵粉重量","kg"],["waterWeight","水＋冰塊重量","kg"],["butterWeight","奶油重量","kg"],["hydration","初始水合比例","%"]] },
+  { title: "原料溫度", fields: [["flourTemp","麵粉溫度","°C"],["waterTemp","水＋冰塊溫度","°C"],["butterTemp","奶油溫度","°C"],["ingredientTemp","原料初始溫度","°C"]] },
   { title: "重工料欄位", fields: [["reworkWeight","重工料重量","kg"],["reworkWeightOther","其他重工料重量","kg"],["reworkSource","重工料來源",""],["reworkStorage","重工料存放時間","min"],["reworkTemp","重工料初始溫度","°C"]] },
   { title: "稼動參數", fields: [["plannedTime","預計攪拌時間","分鐘"],["mixStartTime","攪拌開始時間",""],["mixEndTime","攪拌結束時間",""],["stage1Speed","第 1 階段轉速","rpm"],["stage2Speed","第 2 階段轉速","rpm"],["stage3Speed","第 3 階段轉速","rpm"],["stage4Speed","第 4 階段轉速","rpm"],["stage5Speed","第 5 階段轉速","rpm"],["stage6Speed","第 6 階段轉速","rpm"],["stage7Speed","第 7 階段轉速","rpm"]] },
 ];
