@@ -106,14 +106,17 @@ export default function Home() {
   };
   const startEdit = (record: Observation) => { setEntry({ timestamp: record.timestamp, elapsedSeconds: record.elapsed_seconds || "", data: record.data || {}, notes: record.notes || "" }); setEditing(record.id); setEntryOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const confirmDelete = async () => {
-    if (!selected || modal?.type !== "confirm") return;
+    if (modal?.type !== "confirm") return;
     if (!editor) { setModal(null); setLoginOpen(true); return; }
     if (modal.target === "batch") {
-      await fetch(`/api/batches?batchId=${encodeURIComponent(modal.batchId)}`, { method: "DELETE" });
-      if (selected.batch_id === modal.batchId) { setSelected(null); setObservations([]); }
+      const response = await fetch(`/api/batches?batchId=${encodeURIComponent(modal.batchId)}`, { method: "DELETE" });
+      if (!response.ok) { const problem = await response.json().catch(() => ({})) as { error?: string }; setModal({ type: "success", message: problem.error || "無法刪除批次，請重新登入後再試。" }); return; }
+      if (selected?.batch_id === modal.batchId) { setSelected(null); setObservations([]); }
       await refreshBatches(); setModal({ type: "success", message: "批次及其收集資料已刪除。" }); return;
     }
-    await fetch(`/api/observations?id=${modal.id}`, { method: "DELETE" });
+    if (!selected) return;
+    const response = await fetch(`/api/observations?id=${modal.id}`, { method: "DELETE" });
+    if (!response.ok) { const problem = await response.json().catch(() => ({})) as { error?: string }; setModal({ type: "success", message: problem.error || "無法刪除資料，請重新登入後再試。" }); return; }
     await refreshRecords(selected.batch_id); setModal({ type: "success", message: view === "adjustments" ? "調整參數已刪除。" : "GT 量測資料已刪除。" });
   };
   const gtRecords = observations.filter(row => row.data.recordType !== "adjustment");
@@ -124,7 +127,7 @@ export default function Home() {
 
   return <main className={editor ? "editor-mode" : "read-only"}>
     <header><div><p className="eyebrow">DOUGH MIXING · DATA LOG</p><h1>麵團攪拌資料收集</h1><button className="preset-button" onClick={() => setView("defaults")}>預設初始參數設定</button></div><div className="header-actions">{editor && <button className="primary" onClick={createBatch}>＋ 新增批次</button>}<button className="login-button" onClick={editor ? signOut : () => setLoginOpen(true)}>{editor ? "登出 SBL2026" : "登入編輯"}</button></div></header>
-    <section className="layout"><aside><h2>批次清單</h2><p className="muted">建立後可隨時回來修改資料。</p><div className="batch-list">{batches.length === 0 ? <p className="empty">尚無資料。請按「新增批次」。</p> : batches.map(batch => <div key={batch.batch_id} className={selected?.batch_id === batch.batch_id ? "batch active" : "batch"}><button className="batch-select" onClick={() => { setSelected(batch); setView("initial"); }}><strong>{batch.batch_id}</strong><span>{batch.mixer_no || "未填攪拌機"} · {batch.collected_date || "未填日期"}</span></button><button className="batch-delete" aria-label={`刪除批次 ${batch.batch_id}`} onClick={() => setModal({ type: "confirm", target: "batch", batchId: batch.batch_id })}>×</button></div>)}</div></aside>
+    <section className="layout"><aside><h2>批次清單</h2><p className="muted">建立後可隨時回來修改資料。</p><div className="batch-list">{batches.length === 0 ? <p className="empty">尚無資料。請按「新增批次」。</p> : batches.map(batch => <div key={batch.batch_id} className={selected?.batch_id === batch.batch_id ? "batch active" : "batch"}><button className="batch-select" onClick={() => { setSelected(batch); setView("initial"); }}><strong>{batch.batch_id}</strong><span>{batch.mixer_no || "未填攪拌機"} · {batch.collected_date || "未填日期"}</span></button><button type="button" className="batch-delete" aria-label={`刪除批次 ${batch.batch_id}`} onClick={event => { event.stopPropagation(); setSelected(batch); setModal({ type: "confirm", target: "batch", batchId: batch.batch_id }); }}>×</button></div>)}</div></aside>
       <section className="work"><div className="tabs"><button className={view === "initial" ? "active" : ""} onClick={() => setView("initial")}>01 實際進料參數</button><button disabled={!selected} className={view === "records" ? "active" : ""} onClick={() => setView("records")}>02 人工量測</button><button disabled={!selected} className={view === "adjustments" ? "active" : ""} onClick={() => setView("adjustments")}>03 追加調整</button><button disabled={!selected} className={view === "combined" ? "active" : ""} onClick={() => setView("combined")}>04 此批次</button><button className={view === "allCombined" ? "active" : ""} onClick={() => setView("allCombined")}>05 全部批次</button></div>
       {view === "defaults" ? <DefaultInitialParametersPanel value={defaultInitial} setValue={setDefaultInitial} save={saveDefaultInitial}/>
       : view === "allCombined" ? <AllCombinedTable batches={batches} records={allObservations}/>
