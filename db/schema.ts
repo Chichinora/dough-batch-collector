@@ -20,3 +20,11 @@ export const observations = sqliteTable("observations", {
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+export const defaultInitialParameters = sqliteTable("default_initial_parameters", {
+  id: integer("id").primaryKey(),
+  mixerNo: text("mixer_no"),
+  collectedDate: text("collected_date"),
+  initialData: text("initial_data").notNull().default("{}"),
+  updatedAt: text("updated_at").notNull(),
+});
